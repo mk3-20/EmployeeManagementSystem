@@ -49,7 +49,9 @@ class Employee{
             Company *company;
             string post = "---";
             string departmentName = "---"; 
-            int id;
+            string id, password = "abcd";
+            float annualSalary;
+            int leaveCount = 0;
             Employee *prev=nullptr, *next=nullptr;
 
             Employee(){}
@@ -65,9 +67,11 @@ class Employee{
                 this->details = details;
             }
 
-            Employee(string name, int age, string DOB = "---", string address = "---", string phoneNumber = "---",string post="---",string departmentName="---"){
+            Employee(string name, int age,float salary,int leaves=0, string DOB = "---", string address = "---", string phoneNumber = "---",string post="---",string departmentName="---"){
                 details = new Details(name,age,DOB,address,phoneNumber);
                 this->post = post;
+                this->leaveCount = leaves;
+                this->annualSalary = salary;
                 this->departmentName = departmentName;
             }
 
@@ -97,8 +101,8 @@ class Employee{
                 cout<<startPadding<<"Date of Birth: "<<details->DOB<<endl;
                 cout<<startPadding<<"Address: "<<details->address<<endl;
                 cout<<startPadding<<"Phone Number: "<<details->phoneNumber<<endl;
-                cout<<startPadding<<"Number of Leaves: "<<"--"<<endl;
-                cout<<startPadding<<"Salary: "<<"--"<<endl;
+                cout<<startPadding<<"Number of Leaves: "<<leaveCount<<endl;
+                cout<<startPadding<<"Total Annual Salary: "<<annualSalary<<endl;
             }
 };
 
@@ -126,12 +130,31 @@ class Company{
         Employee* setCEO(Employee* emp);
         Employee* makeAndAddCEO(string startPadding = "    ");
 
+        Employee* getEmployeeFromId(string id){
+            Employee* ptr = firstEmployeeOfCompany;
+            while(ptr!=nullptr && ptr->id!=id){
+                ptr = ptr->next;
+            }
+            return ptr;
+        }
+
+        float getEmployeeSalary(Employee *emp){
+            if((emp->leaveCount)<=noOfLeavesAllowed) return emp->annualSalary;
+            float oneDaySalary = (emp->annualSalary)/workingDays;
+            float oneDayReduction = (oneDaySalary * salaryReductionPercentage)/100;
+            float amountToBeReducted = oneDayReduction * ((emp->leaveCount)-noOfLeavesAllowed);
+            return ((emp->annualSalary) - amountToBeReducted);
+        }
+
     private:
         friend class Department;
         Department *firstDepartment = nullptr;
         Department *lastDepartment = nullptr;
         Employee *firstEmployeeOfCompany = nullptr;
         Employee *lastEmployeeOfCompany = nullptr;
+        int noOfLeavesAllowed = 3;
+        float salaryReductionPercentage = 69;
+        int workingDays = 200;
 };
 
 class Department{
@@ -158,7 +181,7 @@ class Department{
 
         void setHOD(Employee* emp){
             if(HOD!=nullptr) HOD->post = "---";
-            if(emp->post.compare("---")) emp->post = "HOD";
+            if(emp->post=="---") emp->post = "HOD";
             else emp->post += ", HOD";
             emp->departmentName = departmentName;
             HOD = emp;
@@ -276,6 +299,9 @@ class Department{
 
         Employee* addEmployee(Employee *emp,string post="--",bool makeHOD = false,string startPadding = "   "){
             emp->departmentName = departmentName;
+            emp->id = company->companyName.substr(0,3);
+            emp->id += departmentName.substr(0,3);
+            emp->id += to_string(company->noOfEmployees);
             emp->company = company;
             emp->post = post;
 
@@ -322,7 +348,6 @@ class Department{
             (company->noOfEmployees)++;
             if(makeHOD) setHOD(emp);
 
-            cout<<endl<<startPadding<<"! Added "<<emp->details->name<<" in "<<emp->departmentName<<" !\n\n";
             return emp;
         }
 
@@ -418,7 +443,6 @@ Department* Company::addDepartment(Department *department,string startPadding){
     lastDepartment = department;
     lastDepartment->next = nullptr;
     noOfDepartments++;
-    cout<<startPadding<<"! Added "<<department->departmentName<<" to "<<companyName<<" !"<<endl;
     return department;
 }
 
@@ -453,7 +477,7 @@ void Company::displayAllEmployees(string startPadding){
     int count = 1;
     while(ptr!=nullptr)
     {   
-        cout<<startPadding<<count<<") "<<ptr->details->name<<" - "<<ptr->departmentName<<" - "<<ptr->post<<endl;
+        cout<<startPadding<<ptr->id<<") "<<ptr->details->name<<" - "<<ptr->departmentName<<" - "<<ptr->post<<endl;
         count++;
         ptr = ptr->next;
     }
@@ -556,9 +580,8 @@ void TBI(){
     cout<<"\n__ TO BE IMPLEMENTED SOON __\n";
 }
 
-void startProgram(Company *company=nullptr){
-    cout<<"___ Employee Management System ____\n";
-    cout<<"    by Mukund Kukreja AIML1\n";
+void startProgramForAdmin(Company *company){
+
     printOperations(company);
 
     string spaceA = "    ";
@@ -569,133 +592,159 @@ void startProgram(Company *company=nullptr){
         int input;
         cin>>input;
         if(input==-1) break;
+        switch (input){
+            case 0: // Display Operations
+            {
+                printOperations(company);
+                break;
+            } 
 
-        switch (input)
-        {
-        case 0: 
-            printOperations(company);
-            break;
-
-        case 1: // Display CEO Details
-            cout<<"---> OPER 1: Display CEO details\n\n";
-            company->CEO->displayDetails();
-            break;
-            
-        case 2: // Change CEO
-            cout<<"---> OPER 6: Change CEO of "<<company->companyName<<"\n\n";
-            if(company->CEO!=nullptr) cout<<spaceA<<"Current CEO of "<<company->companyName<<": "<<company->CEO->details->name<<endl;
-            if((company->noOfEmployees)>0){
-                cout<<spaceA<<" --> Options:\n";
-                cout<<space2A<<"1) Promote pre-exisiting employee to the post of CEO of "<<company->companyName<<endl;
-                cout<<space2A<<"2) Make a new CEO\n";
-                while(true){
-                    int makeNewHodInput;
-                    cout<<space2A<<"Enter 1 or 2: "; cin>>makeNewHodInput;
-                    if(makeNewHodInput == 2){
-                        company->makeAndAddCEO();
-                        break;
-                    } 
-                    else if(makeNewHodInput == 1){
-                        Employee* emp = company->selectAnEmployee(space2A);
-                        if(emp!=nullptr) company->setCEO(emp);
-                        break;
-                    }
-                }
+            case 1: // Display CEO Details
+            {
+                cout<<"---> OPER 1: Display CEO details\n\n";
+                company->CEO->displayDetails();
+                break;
             }
-            else company->makeAndAddCEO();
-            cout<<spaceA<<company->CEO->details->name<<" is the new CEO of "<<company->companyName<<endl;
-            break;
-
-        case 3: // Display All Departments
-            cout<<"---> OPER 3: Display Departments in "<<company->companyName<<endl;
-            cout<<"Departments in "<<company->companyName<<" are:\n";
-            company->displayDepartments();
-            break;
-
-        case 4: // Add a new department
-            cout<<"---> OPER 4: Add a new Deparment in "<<company->companyName<<"\n\n";
-            company->makeAndAddDepartment(spaceA);
-            break;
-
-        case 5: // Display HOD Details
-            cout<<"---> OPER 5: Display HOD details\n\n";
-            if((company->noOfDepartments)>0){
-                Department* dep = company->selectADepartment();
-                string heading = "HOD of ";
-                heading+=dep->departmentName;
-                heading+=": ";
-                if(dep!=nullptr){
-                    if(dep->HOD==nullptr) cout<<dep->departmentName<<" has no HOD :(\n";
-                    else dep->HOD->displayDetails(heading,space2A);
-                }
-            }
-            else cout<<"There are no Departments in "<<company->companyName<<" :("<<endl;
-            break;
-
-        case 6: // Change HOD
-            cout<<"---> OPER 6: Change HOD of department...\n\n";
-            if((company->noOfDepartments)>0){
-                Department* dep = company->selectADepartment();
-                if(dep!=nullptr && dep->HOD!=nullptr) cout<<spaceA<<"Current HOD of "<<dep->departmentName<<": "<<dep->HOD->details->name<<endl;
-                if((dep->noOfEmployees)>0){
+                
+            case 2: // Change CEO
+            {
+                cout<<"---> OPER 6: Change CEO of "<<company->companyName<<"\n\n";
+                if(company->CEO!=nullptr) cout<<spaceA<<"Current CEO of "<<company->companyName<<": "<<company->CEO->details->name<<endl;
+                if((company->noOfEmployees)>0){
                     cout<<spaceA<<" --> Options:\n";
-                    cout<<space2A<<"1) Promote pre-exisiting employee to the post of HOD of "<<dep->departmentName<<endl;
-                    cout<<space2A<<"2) Make a new HOD\n";
+                    cout<<space2A<<"1) Promote pre-exisiting employee to the post of CEO of "<<company->companyName<<endl;
+                    cout<<space2A<<"2) Make a new CEO\n";
                     while(true){
                         int makeNewHodInput;
                         cout<<space2A<<"Enter 1 or 2: "; cin>>makeNewHodInput;
                         if(makeNewHodInput == 2){
-                            dep->makeAndAddEmployee(true);
+                            company->makeAndAddCEO();
                             break;
                         } 
                         else if(makeNewHodInput == 1){
-                            Employee* emp = dep->selectAnEmployee(space2A);
-                            if(emp!=nullptr) dep->setHOD(emp);
+                            Employee* emp = company->selectAnEmployee(space2A);
+                            if(emp!=nullptr) company->setCEO(emp);
                             break;
                         }
                     }
                 }
-                else dep->makeAndAddEmployee(true);
-                cout<<spaceA<<dep->HOD->details->name<<" is the new HOD of "<<dep->departmentName<<endl;
+                else company->makeAndAddCEO();
+                cout<<spaceA<<company->CEO->details->name<<" is the new CEO of "<<company->companyName<<endl;
+                break;
             }
-            else cout<<"There are no Departments in "<<company->companyName<<" :("<<endl;
-            break;
 
-        case 7: // Display Employees in a department
-            cout<<"---> OPER 7: Display Employees in department...\n\n";
-            if((company->noOfDepartments)>0){
-                Department* dep = company->selectADepartment();
-                if(dep!=nullptr) dep->displayEmployees("       ");
+            case 3: // Display All Departments
+                {
+                    cout<<"---> OPER 3: Display Departments in "<<company->companyName<<endl;
+                    cout<<"Departments in "<<company->companyName<<" are:\n";
+                    company->displayDepartments();
+                    break;
+                }
+
+            case 4: // Add New department
+                {
+                    cout<<"---> OPER 4: Add a new Deparment in "<<company->companyName<<"\n\n";
+                    Department* department = company->makeAndAddDepartment(spaceA);
+                    cout<<spaceA<<"! Added "<<department->departmentName<<" to "<<company->companyName<<" !"<<endl;
+                    break;
+                }
+
+            case 5: // Display HOD Details
+                {
+                    cout<<"---> OPER 5: Display HOD details\n\n";
+                    if((company->noOfDepartments)>0){
+                        Department* dep = company->selectADepartment();
+                        string heading = "HOD of ";
+                        heading+=dep->departmentName;
+                        heading+=": ";
+                        if(dep!=nullptr){
+                            if(dep->HOD==nullptr) cout<<dep->departmentName<<" has no HOD :(\n";
+                            else dep->HOD->displayDetails(heading,space2A);
+                        }
+                    }
+                    else cout<<"There are no Departments in "<<company->companyName<<" :("<<endl;
+                    break;
+                }
+
+            case 6: // Change HOD
+            {
+                cout<<"---> OPER 6: Change HOD of department...\n\n";
+                if((company->noOfDepartments)>0){
+                    Department* dep = company->selectADepartment();
+                    if(dep!=nullptr && dep->HOD!=nullptr) cout<<spaceA<<"Current HOD of "<<dep->departmentName<<": "<<dep->HOD->details->name<<endl;
+                    if((dep->noOfEmployees)>0){
+                        cout<<spaceA<<" --> Options:\n";
+                        cout<<space2A<<"1) Promote pre-exisiting employee to the post of HOD of "<<dep->departmentName<<endl;
+                        cout<<space2A<<"2) Make a new HOD\n";
+                        while(true){
+                            int makeNewHodInput;
+                            cout<<space2A<<"Enter 1 or 2: "; cin>>makeNewHodInput;
+                            if(makeNewHodInput == 2){
+                                dep->makeAndAddEmployee(true);
+                                break;
+                            } 
+                            else if(makeNewHodInput == 1){
+                                Employee* emp = dep->selectAnEmployee(space2A);
+                                if(emp!=nullptr) dep->setHOD(emp);
+                                break;
+                            }
+                        }
+                    }
+                    else dep->makeAndAddEmployee(true);
+                    cout<<spaceA<<dep->HOD->details->name<<" is the new HOD of "<<dep->departmentName<<endl;
+                }
+                else cout<<"There are no Departments in "<<company->companyName<<" :("<<endl;
+                break;
             }
-            else cout<<"There are no Departments in "<<company->companyName<<" :("<<endl;
-            break;
 
-        case 8: // Add a new employee 
-            cout<<"---> OPER 8: Add a new Employee in department...\n\n";
-            if((company->noOfDepartments)>0){
-                Department* dep = company->selectADepartment();
-                if(dep!=nullptr) dep->makeAndAddEmployee();
+            case 7: // Display Employees in department
+            {
+                cout<<"---> OPER 7: Display Employees in department...\n\n";
+                if((company->noOfDepartments)>0){
+                    Department* dep = company->selectADepartment();
+                    if(dep!=nullptr) dep->displayEmployees("       ");
+                }
+                else cout<<"There are no Departments in "<<company->companyName<<" :("<<endl;
+                break;
             }
-            else cout<<"There are no Departments in "<<company->companyName<<" :("<<endl;
-            break;
 
-        case 9: // Display An Employee
-            cout<<"---> OPER 9: Display an Employee details...\n\n";
-            if((company->noOfEmployees)>0){
-                Employee* emp = company->selectAnEmployee();
-                if(emp!=nullptr) emp->displayDetails("          ");
+            case 8: // Add New employee 
+            {
+                cout<<"---> OPER 8: Add a new Employee in department...\n\n";
+                if((company->noOfDepartments)>0){
+                    Department* dep = company->selectADepartment();
+                    if(dep!=nullptr) {
+                        Employee* emp = dep->makeAndAddEmployee();
+                        cout<<endl<<spaceA<<"! Added "<<emp->details->name<<" in "<<emp->departmentName<<" !\n\n";
+                    }
+                }
+                else cout<<"There are no Departments in "<<company->companyName<<" :("<<endl;
+                break;
             }
-            else cout<<"There are no Employees in "<<company->companyName<<" :("<<endl;
-            break;
 
-        case 10: // Display all employees in the company
-            cout<<"---> OPER 10: Display all employees in "<<company->companyName<<endl<<endl;
-            company->displayAllEmployees();
-            break;
+            case 9: // Display An Employee
+            {
+                cout<<"---> OPER 9: Display an Employee details...\n\n";
+                if((company->noOfEmployees)>0){
+                    Employee* emp = company->selectAnEmployee();
+                    if(emp!=nullptr) emp->displayDetails("          ");
+                }
+                else cout<<"There are no Employees in "<<company->companyName<<" :("<<endl;
+                break;
+            }
 
-        default:
-            cout<<"\nEnter a valid command between 1 to 10!\n";
-            break;
+            case 10: // Display All Employees in Company
+            {
+                cout<<"---> OPER 10: Display all employees in "<<company->companyName<<endl<<endl;
+                company->displayAllEmployees();
+                break;
+            }
+
+            default: // Invalid Input
+            {
+                cout<<"\nEnter a valid command between 1 to 10!\n";
+                break;
+            }
         }
         cout<<"_________________________________________________________________\n";
     }
@@ -703,11 +752,56 @@ void startProgram(Company *company=nullptr){
 
 }
 
+void startProgramForEmployee(Company *company,Employee *emp){
+    emp->displayDetails("Your Details: ","");
+    cout<<"1) View your current salary status\n";
+    cout<<"2) View "<<company->companyName<<"'s salary policy\n";
+    cout<<company->getEmployeeSalary(emp);
+}
+
+void login(Company *company){
+    cout<<"__ Employee Management System __\n";
+    cout<<"    by Mukund Kukreja AIML1\n\n"; 
+
+    cout<<"             HARISH KI DUKAAN\n\n" ;
+    
+    cout<<"1) Admin\n";
+    cout<<"2) Employee\n";
+    cout<<"You are: ";
+    int input;
+    string userId = "admin";
+    string password;
+    while(true){
+        cin>>input;
+        if(input == 1){
+            break;
+        }
+        else if(input == 2){
+            cout<<"Enter your ID: ";
+            getline(cin>>ws,userId);
+            Employee *emp = company->getEmployeeFromId(userId);
+            while(emp==nullptr){
+                cout<<"ID not found.. Enter a valid ID: ";
+                getline(cin>>ws,userId);
+                emp=company->getEmployeeFromId(userId);
+            }
+            cout<<"Enter your Password: ";
+            getline(cin>>ws,password);
+            while(emp->password!=password){
+                cout<<"Incorrect password! Enter a valid password: ";
+                getline(cin>>ws,password);
+            }
+            startProgramForEmployee(company,emp);
+            break;
+        }
+        cout<<"Select a valid option: ";
+    }
+}
 
 
 int main(){
     // Employee Harish = Employee(new Details("Harish",19,"11 April 2003","Near Gyan Ganga","1234567890"));
-    Employee *Harish = new Employee("Harish",19,"11 April 2003","Near Gyan Ganga","1234567890");
+    Employee *Harish = new Employee("Harish",19,100000,0,"11 April 2003","Near Gyan Ganga","1234567890");
 
     Company Harish_Ki_Dukaan = Company("Harish Ki Dukaan");
 
@@ -719,13 +813,13 @@ int main(){
     Harish_Ki_Dukaan.addDepartment(FoodDepartment);
     Harish_Ki_Dukaan.addDepartment(AccountingDepartment);
 
-    Employee* A = new Employee("A",11);
-    Employee* B = new Employee("B",12);
-    Employee* C = new Employee("C",13);
-    Employee* D = new Employee("D",14);
-    Employee* Hod1 = new Employee("HOD 1",15);
-    Employee* Hod2 = new Employee("HOD 2",16);
-    Employee* Hod3 = new Employee("HOD 3",17);
+    Employee* A = new Employee("A",11,19219,3);
+    Employee* B = new Employee("B",12,21342,4);
+    Employee* C = new Employee("C",13,34523,5);
+    Employee* D = new Employee("D",14,213,6);
+    Employee* Hod1 = new Employee("HOD 1",15,13321,7);
+    Employee* Hod2 = new Employee("HOD 2",16,342523,8);
+    Employee* Hod3 = new Employee("HOD 3",17,32435,9);
 
     
     FoodDepartment->addEmployee(Hod2,"HOD",true);
@@ -743,7 +837,8 @@ int main(){
     AccountingDepartment->addEmployee(Hod3,"HOD",true);
     
 
-    startProgram(&Harish_Ki_Dukaan);
+    login(&Harish_Ki_Dukaan);
+    // startProgramForAdmin(&Harish_Ki_Dukaan);
 }
 
 
