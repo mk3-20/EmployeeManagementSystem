@@ -211,99 +211,6 @@ class Department{
             cout<<endl;
         }
 
-        Employee* addEmployeeDebug(Employee *emp,string post="--",bool makeHOD = false,string startPadding = "   "){
-            emp->departmentName = departmentName;
-            emp->company = company;
-            emp->post = post;
-
-            cout<<"this = "<<this<<" dept = "<<this->departmentName<<endl;
-            if(firstEmployee != nullptr && lastEmployee != nullptr){
-                cout<<"first = "<<firstEmployee->details->name<<" , "<< firstEmployee <<endl;
-                cout<<"last = "<<lastEmployee->details->name<<" , "<< lastEmployee <<endl;
-                cout<<"emp = "<<emp->details->name<<" , "<< emp<<endl;
-            }
-            if(noOfEmployees==0){
-                cout<<"1\n";
-                emp->next = nullptr;
-                debugDepts();
-                while(this->prev!=nullptr && this->prev->lastEmployee==nullptr) {
-                    debugDepts();
-                    cout<<"2\n";
-                    Department *temp = this->prev;
-                    cout<<"3\n";
-                    if(temp->prev!=nullptr) temp->prev->next = this;
-                    else company->firstDepartment = this;
-
-                    if(this->next!=nullptr) this->next->prev = temp;
-                    else company->lastDepartment = temp;
-
-                    cout<<"4\n";
-                    temp->next = this->next;
-                    cout<<"5\n";
-                    this->prev = temp->prev;
-                    cout<<"6\n";
-                    temp->prev = this;
-                    cout<<"7\n";
-                    this->next = temp;
-                    cout<<"8\n";
-                    if(this==company->lastDepartment) company->lastDepartment = temp;
-                    cout<<"9\n\n";
-                }
-                if(this->prev!=nullptr && this->prev->lastEmployee!=nullptr)cout<<this->prev->lastEmployee->details->name<<endl;
-                
-                debugDepts();
-                cout<<"10\n";
-                if(this->prev != nullptr && this->prev->lastEmployee != nullptr){
-                    this->prev->lastEmployee->next = emp;
-                    emp->prev = this->prev->lastEmployee;
-                    cout<<"11\n";
-                }
-                else emp->prev = nullptr;
-                if(this->next != nullptr && this->next->firstEmployee != nullptr){
-                    emp->next = this->next->firstEmployee;
-                    cout<<"10.5\n";
-                } 
-                else emp->next = nullptr;
-                this->firstEmployee = emp;
-                cout<<"12\n";
-                this->lastEmployee = emp;
-                cout<<"13\n";
-            }
-            else{
-                cout<<"14\n";
-                emp->prev = lastEmployee;
-                emp->next = lastEmployee->next;
-                cout<<"15\n";
-                lastEmployee->next = emp;
-                cout<<"16\n";
-                lastEmployee = emp;
-                cout<<"17\n";
-            }
-            if(this==company->firstDepartment && company->noOfEmployees == 0){
-                company->firstEmployeeOfCompany = emp;
-                cout<<"69\n";
-            }
-            cout<<emp->details->name<<"->next = ";
-            if(emp->next == nullptr) {
-                company->lastEmployeeOfCompany = emp;
-                cout<<" null"<<endl;
-                cout<<"70\n";
-            }
-            else cout<<emp->next->details->name<<endl;
-            if(this==company->lastDepartment){
-                company->lastEmployeeOfCompany = emp;
-                cout<<"18\n";    
-            } 
-            cout<<"19\n";
-            cout<<"first = "<<firstEmployee->details->name<<" , "<< firstEmployee <<endl;
-            cout<<"last = "<<lastEmployee->details->name<<" , "<< lastEmployee <<endl;
-            noOfEmployees++;
-            (company->noOfEmployees)++;
-            if(makeHOD) setHOD(emp);
-            cout<<endl<<startPadding<<"! Added "<<emp->details->name<<" in "<<emp->departmentName<<" !\n\n";
-            return emp;
-        }
-
         Employee* addEmployee(Employee *emp,string post="---",bool makeHOD = false,string startPadding = "   "){
             emp->departmentName = departmentName;
             emp->id = company->companyName.substr(0,3);
@@ -354,38 +261,6 @@ class Department{
             noOfEmployees++;
             (company->noOfEmployees)++;
             if(makeHOD) setHOD(emp);
-            return emp;
-        }
-
-        Employee* addEmployeeOld(Employee *emp,string post="--",bool makeHOD = false,string startPadding = "   "){
-            emp->departmentName = departmentName;
-            emp->company = company;
-            emp->post = post;
-            emp->prev = lastEmployee;
-
-            if(firstEmployee == nullptr) firstEmployee = emp;
-            else lastEmployee->next = emp;
-
-            lastEmployee = emp;
-            lastEmployee->next = nullptr;
-
-            if(company!=nullptr){
-                Employee* empForCompanyLL = Employee::getCopyOfEmp(emp);
-                empForCompanyLL->prev = company->lastEmployeeOfCompany;
-                if(company->firstEmployeeOfCompany==nullptr) 
-                {   
-                    company->firstEmployeeOfCompany = empForCompanyLL;
-                }
-                else company->lastEmployeeOfCompany->next = empForCompanyLL;
-                company->lastEmployeeOfCompany = empForCompanyLL;
-                emp->id = company->noOfEmployees;
-                empForCompanyLL->id = company->noOfEmployees;
-                (company->noOfEmployees)++;
-            }
-            
-            noOfEmployees++;
-            if(makeHOD) setHOD(emp);
-            cout<<endl<<startPadding<<"! Added "<<emp->details->name<<" in "<<emp->departmentName<<" !\n\n";
             return emp;
         }
 
@@ -598,10 +473,6 @@ void printAdminOperations(Company *company){
     cout<<"\n --> Other\n";
     cout<<"  11. Logout"<<endl;
     cout<<"  12. Exit"<<endl;
-}
-
-void TBI(){
-    cout<<"\n__ TO BE IMPLEMENTED SOON __\n";
 }
 
 bool startProgramForAdmin(Company *company){
@@ -893,7 +764,6 @@ void login(Company *company){
         }
     }
 }
-
 
 int main(){
     // Employee Harish = Employee(new Details("Harish",19,"11 April 2003","Near Gyan Ganga","1234567890"));
