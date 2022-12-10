@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <iostream>
 #include <string>
 using namespace std;
@@ -91,9 +92,9 @@ class Employee{
                 return newEmp;
             }
 
-            void displayDetails(string heading ="Employee Details:",string startPadding = "     "){
-                cout<<"\n"<<startPadding<<heading<<"\n";
-                startPadding+="  ";
+            void displayDetails(int curSalary,string heading ="Employee Details:",string startPadding = "     "){
+                cout<<startPadding<<heading<<"\n";
+                startPadding += "  ";
                 cout<<startPadding<<"Name: "<<details->name<<endl;
                 cout<<startPadding<<"Department: "<<departmentName<<endl;
                 cout<<startPadding<<"Post: "<<post<<endl;
@@ -103,15 +104,15 @@ class Employee{
                 cout<<startPadding<<"Phone Number: "<<details->phoneNumber<<endl;
                 cout<<startPadding<<"Number of Leaves: "<<leaveCount<<endl;
                 cout<<startPadding<<"Total Annual Salary: "<<annualSalary<<endl;
+                cout<<startPadding<<"Current Salary: "<<to_string(curSalary)<<endl;
             }
 };
 
 class Company{
     public:
-        int noOfDepartments = 0;
-        int noOfEmployees = 0;
         Employee* CEO=nullptr;
         string companyName="---";
+        string salaryPolicy = "---";
 
         Company(string companyName);
 
@@ -147,7 +148,13 @@ class Company{
         }
 
     private:
+        int noOfDepartments = 0;
+        int noOfEmployees = 0;
         friend class Department;
+        friend bool startProgramForEmployee(Company *company,Employee *emp);
+        friend bool startProgramForAdmin(Company *company);
+        friend void login(Company *company);
+        string adminPassword = "kaam";
         Department *firstDepartment = nullptr;
         Department *lastDepartment = nullptr;
         Employee *firstEmployeeOfCompany = nullptr;
@@ -181,8 +188,8 @@ class Department{
 
         void setHOD(Employee* emp){
             if(HOD!=nullptr) HOD->post = "---";
-            if(emp->post=="---") emp->post = "HOD";
-            else emp->post += ", HOD";
+            if(emp->post!="---" && emp->post!="HOD") emp->post += ", HOD";
+            else emp->post = "HOD";
             emp->departmentName = departmentName;
             HOD = emp;
         }
@@ -297,7 +304,7 @@ class Department{
             return emp;
         }
 
-        Employee* addEmployee(Employee *emp,string post="--",bool makeHOD = false,string startPadding = "   "){
+        Employee* addEmployee(Employee *emp,string post="---",bool makeHOD = false,string startPadding = "   "){
             emp->departmentName = departmentName;
             emp->id = company->companyName.substr(0,3);
             emp->id += departmentName.substr(0,3);
@@ -347,7 +354,6 @@ class Department{
             noOfEmployees++;
             (company->noOfEmployees)++;
             if(makeHOD) setHOD(emp);
-
             return emp;
         }
 
@@ -429,6 +435,20 @@ Company::Company(string companyName){
     ManagementDepartment = new Department("Management Department");
     addDepartment(ManagementDepartment);
     this->companyName = companyName;
+    salaryPolicy = "\n        ---> ";
+    salaryPolicy += companyName;
+    salaryPolicy += "'s Salary Policy <---\n\n";
+    salaryPolicy += " * Salary of an employee is affected by the number of leaves they've taken.\n";
+    salaryPolicy += " * The number of paid leaves allowed in ";
+    salaryPolicy += companyName;
+    salaryPolicy += " are ";
+    salaryPolicy += to_string(noOfLeavesAllowed);
+    salaryPolicy += " in ";
+    salaryPolicy += to_string(workingDays);
+    salaryPolicy += " working days.";
+    salaryPolicy += "\n * Any more leaves than that will result in ";
+    salaryPolicy += to_string(salaryReductionPercentage);
+    salaryPolicy += "% salary reduction for each leave.";
 }
 
 Department* Company::addDepartment(Department *department,string startPadding){
@@ -477,7 +497,7 @@ void Company::displayAllEmployees(string startPadding){
     int count = 1;
     while(ptr!=nullptr)
     {   
-        cout<<startPadding<<ptr->id<<") "<<ptr->details->name<<" - "<<ptr->departmentName<<" - "<<ptr->post<<endl;
+        cout<<startPadding<<count<<") "<<ptr->id<<" - "<<ptr->details->name<<" - "<<ptr->departmentName<<" - "<<ptr->post<<endl;
         count++;
         ptr = ptr->next;
     }
@@ -499,7 +519,8 @@ void Company::displayAllEmployeesWithDepartments(string startPadding){
 Employee* Company::setCEO(Employee* emp){
     if(CEO!=nullptr) CEO->post = "---";
     emp->departmentName = ManagementDepartment->departmentName;
-    emp->post = "CEO";
+    if(emp->post!="---" && emp->post!="CEO") emp->post += ", CEO";
+    else emp->post = "HOD";
     CEO = emp;
     return CEO;
 }
@@ -553,8 +574,8 @@ Employee* Company::selectAnEmployee(string startPadding){
     }
 }
 
-void printOperations(Company *company){
-    cout<<"\nOPERATIONS:\n";
+void printAdminOperations(Company *company){
+    cout<<"\nAdmin Operations:\n";
     
     cout<<"   0. Print Operations\n";
 
@@ -562,47 +583,50 @@ void printOperations(Company *company){
     cout<<"   1. Display CEO details\n";
     cout<<"   2. Change CEO\n";
 
-    cout<<"\n --> Departments\n";
+    cout<<"\n --> Department\n";
     cout<<"   3. Display Departments in "<<company->companyName<<endl;
     cout<<"   4. Add a new department\n";
     cout<<"   5. Display HOD details\n";
     cout<<"   6. Change HOD\n";
 
-    cout<<"\n --> Employees\n";
+    cout<<"\n --> Employee\n";
     cout<<"   7. Display Employees in department...\n";
     cout<<"   8. Add a new Employee in department...\n";
     cout<<"   9. Display an Employee details...\n";
     cout<<"  10. Display all employees in "<<company->companyName<<endl;
-    cout<<endl;
+
+    cout<<"\n --> Other\n";
+    cout<<"  11. Logout"<<endl;
+    cout<<"  12. Exit"<<endl;
 }
 
 void TBI(){
     cout<<"\n__ TO BE IMPLEMENTED SOON __\n";
 }
 
-void startProgramForAdmin(Company *company){
+bool startProgramForAdmin(Company *company){
+    cout<<"\nLogged in as Admin..\n";
 
-    printOperations(company);
+    printAdminOperations(company);
 
     string spaceA = "    ";
     string space2A = "        ";
 
     while(true){
-        cout<<"Enter an operation b/w 1 to 10: ";
+        cout<<"\nEnter an operation b/w 1 to 12: ";
         int input;
         cin>>input;
-        if(input==-1) break;
+        if(input==12) return false;
         switch (input){
             case 0: // Display Operations
             {
-                printOperations(company);
+                printAdminOperations(company);
                 break;
             } 
-
             case 1: // Display CEO Details
             {
                 cout<<"---> OPER 1: Display CEO details\n\n";
-                company->CEO->displayDetails();
+                company->CEO->displayDetails(company->getEmployeeSalary(company->CEO),"CEO Details:");
                 break;
             }
                 
@@ -659,7 +683,7 @@ void startProgramForAdmin(Company *company){
                         heading+=": ";
                         if(dep!=nullptr){
                             if(dep->HOD==nullptr) cout<<dep->departmentName<<" has no HOD :(\n";
-                            else dep->HOD->displayDetails(heading,space2A);
+                            else dep->HOD->displayDetails(company->getEmployeeSalary(dep->HOD),heading,space2A);
                         }
                     }
                     else cout<<"There are no Departments in "<<company->companyName<<" :("<<endl;
@@ -727,7 +751,7 @@ void startProgramForAdmin(Company *company){
                 cout<<"---> OPER 9: Display an Employee details...\n\n";
                 if((company->noOfEmployees)>0){
                     Employee* emp = company->selectAnEmployee();
-                    if(emp!=nullptr) emp->displayDetails("          ");
+                    if(emp!=nullptr) emp->displayDetails(company->getEmployeeSalary(emp),"Employee Details:","          ");
                 }
                 else cout<<"There are no Employees in "<<company->companyName<<" :("<<endl;
                 break;
@@ -739,7 +763,10 @@ void startProgramForAdmin(Company *company){
                 company->displayAllEmployees();
                 break;
             }
-
+            case 11: // Logout
+            {
+                return true;
+            }
             default: // Invalid Input
             {
                 cout<<"\nEnter a valid command between 1 to 10!\n";
@@ -752,49 +779,118 @@ void startProgramForAdmin(Company *company){
 
 }
 
-void startProgramForEmployee(Company *company,Employee *emp){
-    emp->displayDetails("Your Details: ","");
-    cout<<"1) View your current salary status\n";
-    cout<<"2) View "<<company->companyName<<"'s salary policy\n";
-    cout<<company->getEmployeeSalary(emp);
+void printEmployeeOperations(Company* company){
+    cout<<"\n Employee Operations:\n";
+    cout<<"0. Display Operations\n";
+    cout<<"1. View your current salary status\n";
+    cout<<"2. View "<<company->companyName<<"'s salary policy\n";
+    cout<<"3. Logout\n";
+    cout<<"4. Exit\n";
+}
+
+bool startProgramForEmployee(Company *company,Employee *emp){
+    cout<<"\nLogged in as "<<emp->details->name<<"..\n";
+    emp->displayDetails(company->getEmployeeSalary(emp),"Your Details: ","");
+    printEmployeeOperations(company);
+
+    int input;
+    while (true)
+    {   
+        cout<<"\nEnter from 0 to 4: ";
+        cin>>input;
+        if(input==4) return false;
+        switch (input)
+        {   
+            case 0: // Display Employee Operations
+            {
+                printEmployeeOperations(company);
+                break;
+            }
+            case 1: // Employee's Salary Status
+            {
+                cout<<"\n       ---> Your Salary Status <---\n"<<endl;
+                cout<<"Your annual salary is "<<to_string(emp->annualSalary)<<endl;
+                cout<<"The company allowes "<<to_string(company->noOfLeavesAllowed)<<" paid leaves in "<<to_string(company->workingDays)<<" working days."<<endl;
+                cout<<"You've taken "<<to_string(emp->leaveCount)<<" leaves so far.." <<endl;
+                cout<<"After "<<to_string(company->salaryReductionPercentage)<<"% salary reduction for your "<<to_string(abs((emp->leaveCount)-(company->noOfLeavesAllowed)))<<" extra leaves, your salary for this year comes out to be: "<<company->getEmployeeSalary(emp)<<endl;
+                break;
+            }                
+            case 2: // Company's Salary Policy
+            {
+                cout<<company->salaryPolicy<<endl;
+                break;
+            }                
+            case 3: // Logout
+            {
+                return true;
+            }                
+            default: // Invalid Input
+            {
+                cout<<"Enter a valid operation!\n";
+                break;
+            }
+        }
+        cout<<"_______________________________________________________________________________________________\n";
+    }
+    
 }
 
 void login(Company *company){
     cout<<"__ Employee Management System __\n";
     cout<<"    by Mukund Kukreja AIML1\n\n"; 
 
-    cout<<"             HARISH KI DUKAAN\n\n" ;
-    
-    cout<<"1) Admin\n";
-    cout<<"2) Employee\n";
-    cout<<"You are: ";
-    int input;
-    string userId = "admin";
-    string password;
-    while(true){
-        cin>>input;
-        if(input == 1){
-            break;
-        }
-        else if(input == 2){
-            cout<<"Enter your ID: ";
-            getline(cin>>ws,userId);
-            Employee *emp = company->getEmployeeFromId(userId);
-            while(emp==nullptr){
-                cout<<"ID not found.. Enter a valid ID: ";
-                getline(cin>>ws,userId);
-                emp=company->getEmployeeFromId(userId);
-            }
-            cout<<"Enter your Password: ";
-            getline(cin>>ws,password);
-            while(emp->password!=password){
-                cout<<"Incorrect password! Enter a valid password: ";
+    bool keepRunning = true;
+        while(keepRunning){
+        cout<<"       ----------------------------\n\n" ;
+        cout<<"             HARISH KI DUKAAN\n\n" ;
+        cout<<"       ----------------------------\n\n" ;
+        
+        cout<<"[ Press 0 to exit program ]\n";
+        cout<<"1) Admin\n";
+        cout<<"2) Employee\n";
+        cout<<"--> You are: ";
+        int input;
+        string userId = "admin";
+        string password;
+        while(true){
+            cin>>input;
+            if(input == 0) return;
+            if(input == 1){
+                cout<<"\n   Login\n\n";
+                cout<<"Welcome Admin..\n";
+                cout<<"Enter your Password: ";
                 getline(cin>>ws,password);
+                while(password!=company->adminPassword){
+                    cout<<"Incorrect password! Enter a valid password: ";
+                    getline(cin>>ws,password);
+                }
+                keepRunning = startProgramForAdmin(company);
+                cout<<"Logging out...\n\n\n";
+                break;
             }
-            startProgramForEmployee(company,emp);
-            break;
+            else if(input == 2){
+                cout<<"\n   Login\n\n";
+                cout<<"Enter your ID: ";
+                getline(cin>>ws,userId);
+                Employee *emp = company->getEmployeeFromId(userId);
+                while(emp==nullptr){
+                    cout<<"ID not found.. Enter a valid ID: ";
+                    getline(cin>>ws,userId);
+                    emp=company->getEmployeeFromId(userId);
+                }
+                cout<<"Welcome "<<emp->details->name<<"..\n";
+                cout<<"Enter your Password: ";
+                getline(cin>>ws,password);
+                while(emp->password!=password){
+                    cout<<"Incorrect password! Enter a valid password: ";
+                    getline(cin>>ws,password);
+                }
+                keepRunning = startProgramForEmployee(company,emp);
+                cout<<"Logging out...\n\n\n";
+                break;
+            }
+            cout<<"Select a valid option: ";
         }
-        cout<<"Select a valid option: ";
     }
 }
 
@@ -821,29 +917,22 @@ int main(){
     Employee* Hod2 = new Employee("HOD 2",16,342523,8);
     Employee* Hod3 = new Employee("HOD 3",17,32435,9);
 
-    
-    FoodDepartment->addEmployee(Hod2,"HOD",true);
-    SanitoryDepartment->addEmployee(A,"Janitor");
-
-    SanitoryDepartment->addEmployee(Hod1,"HOD",true);
-    AccountingDepartment->addEmployee(D,"Accountant");
-    Harish_Ki_Dukaan.ManagementDepartment->addEmployee(Harish,"CEO",true);
+    Harish_Ki_Dukaan.ManagementDepartment->addEmployee(Harish,"---",true);
     Harish_Ki_Dukaan.setCEO(Harish);
+    
+    SanitoryDepartment->addEmployee(Hod1,"HOD",true);
+    SanitoryDepartment->addEmployee(A,"Janitor");
     SanitoryDepartment->addEmployee(B,"Washer");
 
+    FoodDepartment->addEmployee(Hod2,"HOD",true);
     FoodDepartment->addEmployee(C,"Chef");
 
-
     AccountingDepartment->addEmployee(Hod3,"HOD",true);
+    AccountingDepartment->addEmployee(D,"Accountant");
     
 
     login(&Harish_Ki_Dukaan);
-    // startProgramForAdmin(&Harish_Ki_Dukaan);
+    cout<<"\n       ---------------------------------\n";
+    cout<<"\n       !! Ending Program !! Thank You :)\n";
+    cout<<"\n       ---------------------------------\n";
 }
-
-
-
-/*     Employee* A = new Employee(new Details("A",11));
-    Employee* B = new Employee(new Details("B",12));
-    Employee* C = new Employee(new Details("C",13));
-    Employee* D = new Employee(new Details("D",14)); */
