@@ -47,8 +47,8 @@ class Employee{
     public:
             Details *details;
             Company *company;
-            string post;
-            string departmentName;
+            string post = "---";
+            string departmentName = "---"; 
             int id;
             Employee *prev=nullptr, *next=nullptr;
 
@@ -111,7 +111,7 @@ class Company{
 
         Company(string companyName);
 
-        Department* ManagementDepartment;
+        Department* ManagementDepartment = nullptr;
         Department* makeAndAddDepartment(string startPadding = "   ");
         Department* addDepartment(Department *department,string startPadding = "   ");
         Department* getDepartment(int index);
@@ -158,7 +158,8 @@ class Department{
 
         void setHOD(Employee* emp){
             if(HOD!=nullptr) HOD->post = "---";
-            emp->post = "HOD";
+            if(emp->post.compare("---")) emp->post = "HOD";
+            else emp->post += ", HOD";
             emp->departmentName = departmentName;
             HOD = emp;
         }
@@ -180,7 +181,7 @@ class Department{
             cout<<endl;
         }
 
-        Employee* addEmployee(Employee *emp,string post="--",bool makeHOD = false,string startPadding = "   "){
+        Employee* addEmployeeDebug(Employee *emp,string post="--",bool makeHOD = false,string startPadding = "   "){
             emp->departmentName = departmentName;
             emp->company = company;
             emp->post = post;
@@ -273,7 +274,59 @@ class Department{
             return emp;
         }
 
-        /*Employee* addEmployee(Employee *emp,string post="--",bool makeHOD = false,string startPadding = "   "){
+        Employee* addEmployee(Employee *emp,string post="--",bool makeHOD = false,string startPadding = "   "){
+            emp->departmentName = departmentName;
+            emp->company = company;
+            emp->post = post;
+
+            if(noOfEmployees==0){
+                emp->next = nullptr;
+                while(this->prev!=nullptr && this->prev->lastEmployee==nullptr) {
+                    Department *temp = this->prev;
+                    if(temp->prev!=nullptr) temp->prev->next = this;
+                    else company->firstDepartment = this;
+                    if(this->next!=nullptr) this->next->prev = temp;
+                    else company->lastDepartment = temp;
+                    temp->next = this->next;
+                    this->prev = temp->prev;
+                    temp->prev = this;
+                    this->next = temp;
+                    if(this==company->lastDepartment) company->lastDepartment = temp;
+                }
+                if(this->prev != nullptr && this->prev->lastEmployee != nullptr){
+                    this->prev->lastEmployee->next = emp;
+                    emp->prev = this->prev->lastEmployee;
+                }
+                else emp->prev = nullptr;
+                if(this->next != nullptr && this->next->firstEmployee != nullptr) {
+                    this->next->firstEmployee->prev = emp;
+                    emp->next = this->next->firstEmployee; 
+                }
+                else emp->next = nullptr;
+                this->firstEmployee = emp;
+                this->lastEmployee = emp;
+            }
+            else{
+                emp->prev = lastEmployee;
+                emp->next = lastEmployee->next;
+                lastEmployee->next = emp;
+                lastEmployee = emp;
+            }
+
+            if(emp->next == nullptr) company->lastEmployeeOfCompany = emp;
+            
+            if(this==company->firstDepartment && company->noOfEmployees == 0) company->firstEmployeeOfCompany = emp;
+            if(this==company->lastDepartment) company->lastEmployeeOfCompany = emp; 
+
+            noOfEmployees++;
+            (company->noOfEmployees)++;
+            if(makeHOD) setHOD(emp);
+
+            cout<<endl<<startPadding<<"! Added "<<emp->details->name<<" in "<<emp->departmentName<<" !\n\n";
+            return emp;
+        }
+
+        Employee* addEmployeeOld(Employee *emp,string post="--",bool makeHOD = false,string startPadding = "   "){
             emp->departmentName = departmentName;
             emp->company = company;
             emp->post = post;
@@ -303,7 +356,7 @@ class Department{
             if(makeHOD) setHOD(emp);
             cout<<endl<<startPadding<<"! Added "<<emp->details->name<<" in "<<emp->departmentName<<" !\n\n";
             return emp;
-        }*/
+        }
 
         void displayEmployees(string startPadding = "   "){
             if(noOfEmployees==0) {
@@ -420,10 +473,7 @@ void Company::displayAllEmployeesWithDepartments(string startPadding){
 }
 
 Employee* Company::setCEO(Employee* emp){
-    if(CEO!=nullptr) {
-            CEO->post = "---";
-            CEO->displayDetails();
-        }
+    if(CEO!=nullptr) CEO->post = "---";
     emp->departmentName = ManagementDepartment->departmentName;
     emp->post = "CEO";
     CEO = emp;
@@ -660,7 +710,6 @@ int main(){
     Employee *Harish = new Employee("Harish",19,"11 April 2003","Near Gyan Ganga","1234567890");
 
     Company Harish_Ki_Dukaan = Company("Harish Ki Dukaan");
-    Harish_Ki_Dukaan.setCEO(Harish);
 
     Department* SanitoryDepartment = new Department("Sanitory Department");
     Department* FoodDepartment = new Department("Food Department");
@@ -680,18 +729,19 @@ int main(){
 
     
     FoodDepartment->addEmployee(Hod2,"HOD",true);
-    FoodDepartment->addEmployee(C,"Chef");
+    SanitoryDepartment->addEmployee(A,"Janitor");
 
     SanitoryDepartment->addEmployee(Hod1,"HOD",true);
-    SanitoryDepartment->addEmployee(A,"Janitor");
+    AccountingDepartment->addEmployee(D,"Accountant");
+    Harish_Ki_Dukaan.ManagementDepartment->addEmployee(Harish,"CEO",true);
+    Harish_Ki_Dukaan.setCEO(Harish);
     SanitoryDepartment->addEmployee(B,"Washer");
 
+    FoodDepartment->addEmployee(C,"Chef");
 
 
     AccountingDepartment->addEmployee(Hod3,"HOD",true);
-    AccountingDepartment->addEmployee(D,"Accountant");
     
-    Harish_Ki_Dukaan.ManagementDepartment->addEmployee(Harish,"CEO",true);
 
     startProgram(&Harish_Ki_Dukaan);
 }
