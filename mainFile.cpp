@@ -126,10 +126,29 @@ class Company{
         void displayAllEmployees(string startPadding = "    ");
         void displayAllEmployeesWithDepartments(string startPadding = "    ");
 
-        Employee* getEmployee(int index);
-        Employee* selectAnEmployee(string startPadding = "    ");
         Employee* setCEO(Employee* emp);
         Employee* makeAndAddCEO(string startPadding = "    ");
+
+        Employee* getEmployee(int index){
+            if(index>noOfEmployees) return nullptr;
+            Employee *ptr = firstEmployeeOfCompany;
+            for(int i = 0; i<index; i++){
+                ptr = ptr->next;
+            }
+            return ptr;
+        }
+
+        Employee* selectAnEmployee(string startPadding = "    "){
+            displayAllEmployees(startPadding);
+            cout<<"\n   --> Select an employee from above: ";
+            while(true){
+                int empIndexShowEmp;
+                cin>>empIndexShowEmp;
+                Employee* emp = getEmployee(empIndexShowEmp-1);
+                if(emp==nullptr)cout<<"       Select a valid employee: ";
+                else return emp;
+            }
+        }
 
         Employee* getEmployeeFromId(string id){
             Employee* ptr = firstEmployeeOfCompany;
@@ -415,15 +434,6 @@ Department* Company::getDepartment(int index){
     return ptr;
 }
 
-Employee* Company::getEmployee(int index){
-    if(index>noOfEmployees) return nullptr;
-    Employee *ptr = firstEmployeeOfCompany;
-    for(int i = 0; i<index; i++){
-        ptr = ptr->next;
-    }
-    return ptr;
-}
-
 Department* Company::selectADepartment(string startPadding){
     cout<<"     Departments in "<<companyName<<" are:\n";
     displayDepartments("     ");
@@ -434,18 +444,6 @@ Department* Company::selectADepartment(string startPadding){
         Department* dep = getDepartment(depIndexDisplayEmps-1);
         if(dep==nullptr)cout<<"       Select a valid department:";
         else return dep;
-    }
-}
-
-Employee* Company::selectAnEmployee(string startPadding){
-    displayAllEmployees(startPadding);
-    cout<<"\n   --> Select an employee from above: ";
-    while(true){
-        int empIndexShowEmp;
-        cin>>empIndexShowEmp;
-        Employee* emp = getEmployee(empIndexShowEmp-1);
-        if(emp==nullptr)cout<<"       Select a valid employee: ";
-        else return emp;
     }
 }
 
