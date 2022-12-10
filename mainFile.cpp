@@ -134,14 +134,13 @@ class Company{
         Employee *lastEmployeeOfCompany = nullptr;
 };
 
-
-
 class Department{
     public:
         string departmentName = "---";
         Employee* HOD = nullptr;
         Company *company = nullptr;
         Department *next = nullptr;
+        Department *prev = nullptr;
         int noOfEmployees = 0;
 
         Department(){}
@@ -164,7 +163,117 @@ class Department{
             HOD = emp;
         }
 
+        void  debugDepts(){
+            Department* ptr = company->firstDepartment;
+            while (ptr!=nullptr)
+            {
+                cout<<ptr->departmentName<<" ";
+                ptr = ptr->next;
+            }
+            cout<<endl;
+            ptr = company->lastDepartment;
+            while (ptr!=nullptr)
+            {
+                cout<<ptr->departmentName<<" ";
+                ptr = ptr->prev;
+            }
+            cout<<endl;
+        }
+
         Employee* addEmployee(Employee *emp,string post="--",bool makeHOD = false,string startPadding = "   "){
+            emp->departmentName = departmentName;
+            emp->company = company;
+            emp->post = post;
+
+            cout<<"this = "<<this<<" dept = "<<this->departmentName<<endl;
+            if(firstEmployee != nullptr && lastEmployee != nullptr){
+                cout<<"first = "<<firstEmployee->details->name<<" , "<< firstEmployee <<endl;
+                cout<<"last = "<<lastEmployee->details->name<<" , "<< lastEmployee <<endl;
+                cout<<"emp = "<<emp->details->name<<" , "<< emp<<endl;
+            }
+            if(noOfEmployees==0){
+                cout<<"1\n";
+                emp->next = nullptr;
+                debugDepts();
+                while(this->prev!=nullptr && this->prev->lastEmployee==nullptr) {
+                    debugDepts();
+                    cout<<"2\n";
+                    Department *temp = this->prev;
+                    cout<<"3\n";
+                    if(temp->prev!=nullptr) temp->prev->next = this;
+                    else company->firstDepartment = this;
+
+                    if(this->next!=nullptr) this->next->prev = temp;
+                    else company->lastDepartment = temp;
+
+                    cout<<"4\n";
+                    temp->next = this->next;
+                    cout<<"5\n";
+                    this->prev = temp->prev;
+                    cout<<"6\n";
+                    temp->prev = this;
+                    cout<<"7\n";
+                    this->next = temp;
+                    cout<<"8\n";
+                    if(this==company->lastDepartment) company->lastDepartment = temp;
+                    cout<<"9\n\n";
+                }
+                if(this->prev!=nullptr && this->prev->lastEmployee!=nullptr)cout<<this->prev->lastEmployee->details->name<<endl;
+                
+                debugDepts();
+                cout<<"10\n";
+                if(this->prev != nullptr && this->prev->lastEmployee != nullptr){
+                    this->prev->lastEmployee->next = emp;
+                    emp->prev = this->prev->lastEmployee;
+                    cout<<"11\n";
+                }
+                else emp->prev = nullptr;
+                if(this->next != nullptr && this->next->firstEmployee != nullptr){
+                    emp->next = this->next->firstEmployee;
+                    cout<<"10.5\n";
+                } 
+                else emp->next = nullptr;
+                this->firstEmployee = emp;
+                cout<<"12\n";
+                this->lastEmployee = emp;
+                cout<<"13\n";
+            }
+            else{
+                cout<<"14\n";
+                emp->prev = lastEmployee;
+                emp->next = lastEmployee->next;
+                cout<<"15\n";
+                lastEmployee->next = emp;
+                cout<<"16\n";
+                lastEmployee = emp;
+                cout<<"17\n";
+            }
+            if(this==company->firstDepartment && company->noOfEmployees == 0){
+                company->firstEmployeeOfCompany = emp;
+                cout<<"69\n";
+            }
+            cout<<emp->details->name<<"->next = ";
+            if(emp->next == nullptr) {
+                company->lastEmployeeOfCompany = emp;
+                cout<<" null"<<endl;
+                cout<<"70\n";
+            }
+            else cout<<emp->next->details->name<<endl;
+            if(this==company->lastDepartment){
+                company->lastEmployeeOfCompany = emp;
+                cout<<"18\n";    
+            } 
+            cout<<"19\n";
+            cout<<"first = "<<firstEmployee->details->name<<" , "<< firstEmployee <<endl;
+            cout<<"last = "<<lastEmployee->details->name<<" , "<< lastEmployee <<endl;
+            noOfEmployees++;
+            (company->noOfEmployees)++;
+            if(makeHOD) setHOD(emp);
+            cout<<endl<<startPadding<<"! Added "<<emp->details->name<<" in "<<emp->departmentName<<" !\n\n";
+            return emp;
+        }
+
+        /*Employee* addEmployee(Employee *emp,string post="--",bool makeHOD = false,string startPadding = "   "){
             emp->departmentName = departmentName;
             emp->company = company;
             emp->post = post;
@@ -194,7 +303,7 @@ class Department{
             if(makeHOD) setHOD(emp);
             cout<<endl<<startPadding<<"! Added "<<emp->details->name<<" in "<<emp->departmentName<<" !\n\n";
             return emp;
-        }
+        }*/
 
         void displayEmployees(string startPadding = "   "){
             if(noOfEmployees==0) {
@@ -219,11 +328,6 @@ class Department{
             }
             return ptr;
         }
-
-        // Employee* getEmployeeById(int id){
-        //     Employee *ptr = firstEmployee;
-        //     while(ptr!=lastEmployee->next)
-        // }
 
         Employee* selectAnEmployee(string startPadding){
             if(noOfEmployees==0) return nullptr;
@@ -251,9 +355,13 @@ Company::Company(string companyName){
 
 Department* Company::addDepartment(Department *department,string startPadding){
     department->company = this;
-    if(firstDepartment==nullptr) firstDepartment = department;
-    else lastDepartment->next = department;
-    
+    if(firstDepartment==nullptr) {
+            firstDepartment = department;
+        }
+    else {
+            lastDepartment->next = department;
+        }
+    department->prev = lastDepartment;
     lastDepartment = department;
     lastDepartment->next = nullptr;
     noOfDepartments++;
@@ -265,7 +373,7 @@ Department* Company::makeAndAddDepartment(string startPadding){
     // cout<<startPadding<<"    --> Add an Employee in "<<departmentName<<endl;
     string name;
     cout<<startPadding<<"Enter Department's name: "; 
-    getline(std::cin >> std::ws,name);    
+    getline(cin >> std::ws,name);    
     Department* newDep = new Department(name);
     return addDepartment(newDep);
 }
@@ -545,13 +653,14 @@ void startProgram(Company *company=nullptr){
 
 }
 
+
+
 int main(){
     // Employee Harish = Employee(new Details("Harish",19,"11 April 2003","Near Gyan Ganga","1234567890"));
     Employee *Harish = new Employee("Harish",19,"11 April 2003","Near Gyan Ganga","1234567890");
 
     Company Harish_Ki_Dukaan = Company("Harish Ki Dukaan");
     Harish_Ki_Dukaan.setCEO(Harish);
-
 
     Department* SanitoryDepartment = new Department("Sanitory Department");
     Department* FoodDepartment = new Department("Food Department");
@@ -569,17 +678,20 @@ int main(){
     Employee* Hod2 = new Employee("HOD 2",16);
     Employee* Hod3 = new Employee("HOD 3",17);
 
-    Harish_Ki_Dukaan.ManagementDepartment->addEmployee(Harish,"CEO",true);
+    
+    FoodDepartment->addEmployee(Hod2,"HOD",true);
+    FoodDepartment->addEmployee(C,"Chef");
 
     SanitoryDepartment->addEmployee(Hod1,"HOD",true);
     SanitoryDepartment->addEmployee(A,"Janitor");
     SanitoryDepartment->addEmployee(B,"Washer");
 
-    FoodDepartment->addEmployee(Hod2,"HOD",true);
-    FoodDepartment->addEmployee(C,"Chef");
+
 
     AccountingDepartment->addEmployee(Hod3,"HOD",true);
     AccountingDepartment->addEmployee(D,"Accountant");
+    
+    Harish_Ki_Dukaan.ManagementDepartment->addEmployee(Harish,"CEO",true);
 
     startProgram(&Harish_Ki_Dukaan);
 }

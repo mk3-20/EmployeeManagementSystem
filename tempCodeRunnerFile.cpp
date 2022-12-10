@@ -1,3 +1,4 @@
-
-    // FoodDepartment->addEmployee(Hod2,"HOD",true);
-    // AccountingDepartment->addEmployee(Hod3,"HOD",true);
+            if(this==company->lastDepartment){
+                company->lastEmployeeOfCompany = emp;
+                cout<<"18\n";    
+            } 
