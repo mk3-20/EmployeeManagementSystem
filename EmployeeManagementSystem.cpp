@@ -968,6 +968,3 @@ int main(){
     cout<<"\n       !! Ending Program !! Thank You :)\n";
     cout<<"\n       ---------------------------------\n";
 }
-
-
-// Display default emp and admin password
