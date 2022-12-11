@@ -7,121 +7,121 @@ Employee Management System
     4) Employee
 
 
-1) class Company
-    Constructors:
-            - Company(string companyName) - Parametrized Constructor
+    1) class Company
+        Constructors:
+                - Company(string companyName) - Parametrized Constructor
 
-    Data Members:
-        public:
-            - string companyName 
-            - Employee* CEO (Pointer to Employee obj that is the CEO of the company)
-            - Company *prev, *next (Company Doubly Linked List pointers)
+        Data Members:
+            public:
+                - string companyName 
+                - Employee* CEO (Pointer to Employee obj that is the CEO of the company)
+                - Company *prev, *next (Company Doubly Linked List pointers)
 
-        private:
-            - Department *firstDepartment, *lastDepartment (Department Doubly Linked List pointers)
-            - Employee *firstEmployeeOfCompany, *lastEmployeeOfCompany (Employee Doubly Linked List pointers)
-            - string adminPassword
-            - int noOfDepartments, noOfEmployees
-            - int noOfLeavesAllowed, workingDays
-            - float salaryReductionPercentage
-    
-    Member Functions:
-        public:
-            - string getSalaryPolicy()
-            - float getEmployeeSalary(Employee *emp)
-
-            - void displayDepartments()
-            - void displayAllEmployees()
-            - void displayAllEmployeesWithDepartments()
-
-            - Department* makeAndAddDepartment()
-            - Department* addDepartment(Department *department)
-            - Department* getDepartment(int index)
-            - Department* selectADepartment()
-
-            - Employee* setCEO(Employee* emp)
-            - Employee* makeAndAddCEO()
-            - Employee* getEmployeeFromIndex(int index)
-            - Employee* selectAnEmployee()
-            - Employee* getEmployeeFromId(string id)
-
-    Friends:
-        classes:
-            friend class Department;
-
-        functions:
-            friend void startProgram()
-
-            friend bool login(Company *company)
-            friend bool startProgramForEmployee(Company *company,Employee *emp)
-            friend bool startProgramForAdmin(Company *company)
-
-            friend Company* makeANewCompany(Company *lastCompany)
-
-
-
-2) class Deparment
-    Constructors:
-        - Department(string name)
-
-    Data Members:
-        public:
-            - string departmentName
-            - Company *company
-            - Employee* HOD
-            - int noOfEmployees
-            - Department *next, *prev
+            private:
+                - Department *firstDepartment, *lastDepartment (Department Doubly Linked List pointers)
+                - Employee *firstEmployeeOfCompany, *lastEmployeeOfCompany (Employee Doubly Linked List pointers)
+                - string adminPassword
+                - int noOfDepartments, noOfEmployees
+                - int noOfLeavesAllowed, workingDays
+                - float salaryReductionPercentage
         
-        private:
-            - Employee *firstEmployee, *lastEmployee
-    
-    Member Functions:
-        public:
-            - void setHOD(Employee* emp)
-            - void displayEmployees()
+        Member Functions:
+            public:
+                - string getSalaryPolicy()
+                - float getEmployeeSalary(Employee *emp)
 
-            - string getEmployeeId(Employee* emp)
+                - void displayDepartments()
+                - void displayAllEmployees()
+                - void displayAllEmployeesWithDepartments()
 
-            - Employee* addEmployee(Employee *emp,string post="---",bool makeHOD = false)
-            - Employee* makeAndAddEmployee(bool makeHOD = false)
-            - Employee* getEmployeeByIndex(int index)
-            - Employee* selectAnEmployee()
+                - Department* makeAndAddDepartment()
+                - Department* addDepartment(Department *department)
+                - Department* getDepartment(int index)
+                - Department* selectADepartment()
+
+                - Employee* setCEO(Employee* emp)
+                - Employee* makeAndAddCEO()
+                - Employee* getEmployeeFromIndex(int index)
+                - Employee* selectAnEmployee()
+                - Employee* getEmployeeFromId(string id)
+
+        Friends:
+            classes:
+                friend class Department;
+
+            functions:
+                friend void startProgram()
+
+                friend bool login(Company *company)
+                friend bool startProgramForEmployee(Company *company,Employee *emp)
+                friend bool startProgramForAdmin(Company *company)
+
+                friend Company* makeANewCompany(Company *lastCompany)
 
 
-3) class Details
-    Constructors:
-        - Details(string name, int age, string DOB = "---", string address = "---", string phoneNumber = "---") - Parametrized Constructor
 
-    Data Members:
-        public:
-            - string name
-            - int age
-            - string DOB
-            - string address
-            - string phoneNumber
+    2) class Deparment
+        Constructors:
+            - Department(string name)
 
-    Member Functions:
-        public:
-            - static Details* getDetailsFromUser()
-
-4) class Employee
-    Constructors:
-        - Employee() - Default Constructor
-        - Employee(string name, int age,float salary,int leaves=0, string DOB = "---", string address = "---", string phoneNumber = "---",string post="---",string departmentName="---") - Parametrized Constructor
-
-    Data Members:
-        public:
-            - Details *details
-            - string companyName, departmentName, post
-            - string id, password
-            - int leaveCount
-            - float annualSalary
-            - Employee *prev, *next 
+        Data Members:
+            public:
+                - string departmentName
+                - Company *company
+                - Employee* HOD
+                - int noOfEmployees
+                - Department *next, *prev
+            
+            private:
+                - Employee *firstEmployee, *lastEmployee
         
-    Member Functions:
-        public:
-            - static Employee* makeEmployee()
-            - void displayDetails(int curSalary)
+        Member Functions:
+            public:
+                - void setHOD(Employee* emp)
+                - void displayEmployees()
+
+                - string getEmployeeId(Employee* emp)
+
+                - Employee* addEmployee(Employee *emp,string post="---",bool makeHOD = false)
+                - Employee* makeAndAddEmployee(bool makeHOD = false)
+                - Employee* getEmployeeByIndex(int index)
+                - Employee* selectAnEmployee()
+
+
+    3) class Details
+        Constructors:
+            - Details(string name, int age, string DOB = "---", string address = "---", string phoneNumber = "---") - Parametrized Constructor
+
+        Data Members:
+            public:
+                - string name
+                - int age
+                - string DOB
+                - string address
+                - string phoneNumber
+
+        Member Functions:
+            public:
+                - static Details* getDetailsFromUser()
+
+    4) class Employee
+        Constructors:
+            - Employee() - Default Constructor
+            - Employee(string name, int age,float salary,int leaves=0, string DOB = "---", string address = "---", string phoneNumber = "---",string post="---",string departmentName="---") - Parametrized Constructor
+
+        Data Members:
+            public:
+                - Details *details
+                - string companyName, departmentName, post
+                - string id, password
+                - int leaveCount
+                - float annualSalary
+                - Employee *prev, *next 
+            
+        Member Functions:
+            public:
+                - static Employee* makeEmployee()
+                - void displayDetails(int curSalary)
 
 
 ---> GLOBAL FUNCTIONS:
