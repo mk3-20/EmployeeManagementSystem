@@ -162,6 +162,7 @@ Employee Management System
         - Constructors (Default, Parametrized, Copy)
         - Data abstraction - access specifiers (private, public)
         - friend function & friend class
+        - Forward declaration of classes
         - Dynamic Memory allocation using 'new' keyword
         - Doubly Linked List
 
