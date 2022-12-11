@@ -280,7 +280,7 @@ class Department{
             Employee *ptr = firstEmployee;
             int count=1;
             do{
-                cout<<startPadding<<count<<") "<<ptr->details->name<<endl;
+                cout<<startPadding<<count<<") "<<ptr->details->name<<" - "<<ptr->post<<endl;
                 count++;
                 ptr = ptr->next;
             }while(ptr!=lastEmployee->next);
