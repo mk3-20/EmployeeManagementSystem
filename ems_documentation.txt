@@ -1,0 +1,177 @@
+Employee Management System
+
+---> CLASSES:
+    1) Company
+    2) Department
+    3) Details
+    4) Employee
+
+
+1) class Company
+    Constructors:
+            - Company(string companyName) - Parametrized Constructor
+
+    Data Members:
+        public:
+            - string companyName 
+            - Employee* CEO (Pointer to Employee obj that is the CEO of the company)
+            - Company *prev, *next (Company Doubly Linked List pointers)
+
+        private:
+            - Department *firstDepartment, *lastDepartment (Department Doubly Linked List pointers)
+            - Employee *firstEmployeeOfCompany, *lastEmployeeOfCompany (Employee Doubly Linked List pointers)
+            - string adminPassword
+            - int noOfDepartments, noOfEmployees
+            - int noOfLeavesAllowed, workingDays
+            - float salaryReductionPercentage
+    
+    Member Functions:
+        public:
+            - string getSalaryPolicy()
+            - float getEmployeeSalary(Employee *emp)
+
+            - void displayDepartments()
+            - void displayAllEmployees()
+            - void displayAllEmployeesWithDepartments()
+
+            - Department* makeAndAddDepartment()
+            - Department* addDepartment(Department *department)
+            - Department* getDepartment(int index)
+            - Department* selectADepartment()
+
+            - Employee* setCEO(Employee* emp)
+            - Employee* makeAndAddCEO()
+            - Employee* getEmployeeFromIndex(int index)
+            - Employee* selectAnEmployee()
+            - Employee* getEmployeeFromId(string id)
+
+    Friends:
+        classes:
+            friend class Department;
+
+        functions:
+            friend void startProgram()
+
+            friend bool login(Company *company)
+            friend bool startProgramForEmployee(Company *company,Employee *emp)
+            friend bool startProgramForAdmin(Company *company)
+
+            friend Company* makeANewCompany(Company *lastCompany)
+
+
+
+2) class Deparment
+    Constructors:
+        - Department(string name)
+
+    Data Members:
+        public:
+            - string departmentName
+            - Company *company
+            - Employee* HOD
+            - int noOfEmployees
+            - Department *next, *prev
+        
+        private:
+            - Employee *firstEmployee, *lastEmployee
+    
+    Member Functions:
+        public:
+            - void setHOD(Employee* emp)
+            - void displayEmployees()
+
+            - string getEmployeeId(Employee* emp)
+
+            - Employee* addEmployee(Employee *emp,string post="---",bool makeHOD = false)
+            - Employee* makeAndAddEmployee(bool makeHOD = false)
+            - Employee* getEmployeeByIndex(int index)
+            - Employee* selectAnEmployee()
+
+
+3) class Details
+    Constructors:
+        - Details(string name, int age, string DOB = "---", string address = "---", string phoneNumber = "---") - Parametrized Constructor
+
+    Data Members:
+        public:
+            - string name
+            - int age
+            - string DOB
+            - string address
+            - string phoneNumber
+
+    Member Functions:
+        public:
+            - static Details* getDetailsFromUser()
+
+4) class Employee
+    Constructors:
+        - Employee() - Default Constructor
+        - Employee(string name, int age,float salary,int leaves=0, string DOB = "---", string address = "---", string phoneNumber = "---",string post="---",string departmentName="---") - Parametrized Constructor
+
+    Data Members:
+        public:
+            - Details *details
+            - string companyName, departmentName, post
+            - string id, password
+            - int leaveCount
+            - float annualSalary
+            - Employee *prev, *next 
+        
+    Member Functions:
+        public:
+            - static Employee* makeEmployee()
+            - void displayDetails(int curSalary)
+
+
+---> GLOBAL FUNCTIONS:
+    - Company* getExampleCompany()
+    - Company* makeANewCompany(Company *lastCompany)
+    - Company* getCompanyByIndex(Company* firstCompany,int index)
+
+    - void printAdminOperations(Company *company)
+    - void printEmployeeOperations(Company* company)
+    - int printCompanies(Company *firstCompany)
+
+    - bool startProgramForAdmin(Company *company)
+    - bool startProgramForEmployee(Company *company,Employee *emp)
+    - bool login(Company *company)
+
+    - void startProgram()
+    - int main()
+
+---> EXTRA INFO ABOUT PROJECT
+    Team Members:
+        - Aman Shrivastava - 0206AL211016 - AIML1
+        - Ayushman Rawat - 0206AL211031 - AIML1
+        - Khushi Vishwakarma - 0206AL211048 - AIML1
+        - Mayank Vishwakarma - 0206AL211057 - AIML1
+        - Mukund Kukreja - 0206AL211059 - AIML1
+    
+    Project Topic:
+        Employee Management System 
+    
+    Project Type:
+        CLI (Command Line Interface)
+
+    Project Objective:
+        To learn Concepts of Object Oriented Programming
+
+    Concepts used:
+        - Classes & Objects
+        - Constructors (Default, Parametrized, Copy)
+        - Data abstraction - access specifiers (private, public)
+        - friend function & friend class
+        - Dynamic Memory allocation using 'new' keyword
+        - Doubly Linked List
+
+    Concepts not used:
+        - Polymorphism
+        - Inheritance
+
+    Header Files used:
+        - iostream - cin, cout, endl
+        - string - getline
+    
+    Submitted to:
+        Prof. Juhi Jain
